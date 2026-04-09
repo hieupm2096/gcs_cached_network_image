@@ -46,7 +46,9 @@ Throws `StateError` if any component tries to use it before `configure()` is cal
 
 ### `GcsFileService` (implements `FileService`)
 
-Receives a resource path from the cache manager, calls the signer, performs the HTTP download from the signed URL. Handles retry with exponential backoff on signing failure. On signing failure with a stale cache entry, signals the cache manager to serve stale while retrying in the background.
+Receives a resource path from the cache manager, calls the signer, performs the HTTP download from the signed URL. Handles retry with exponential backoff on signing failure.
+
+Note: `FileService` has no direct access to cache state. The stale-while-revalidate behaviour (serving an expired cached file while a re-download is in progress) is handled at the `GcsCacheManager` level by catching signing failures from the stream, falling back to the stale `FileInfo` if one exists, and scheduling background retries independently.
 
 ### `GcsCacheManager` (extends `BaseCacheManager`)
 
