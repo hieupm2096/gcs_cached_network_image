@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 import 'gcs_cache_manager.dart';
+import 'gcs_resource_path.dart';
 import 'gcs_url_signer.dart';
 
 /// Drop-in replacement for [CachedNetworkImage] that caches GCS images by
@@ -55,8 +56,16 @@ class GcsCachedNetworkImage extends StatelessWidget {
     this.scale = 1.0,
   });
 
-  /// The stable GCS resource path, e.g. `images/profile/user123.jpg`.
-  /// Used as the cache key — never the signed URL.
+  /// The GCS resource path or a signed GCS URL for this image.
+  ///
+  /// Prefer passing a stable resource path (e.g. `images/profile/user123.jpg`)
+  /// so the cache key never changes across URL re-signings.
+  ///
+  /// A signed URL (`https://storage.googleapis.com/{bucket}/{path}?X-Goog-...`)
+  /// is also accepted for backwards compatibility: the bucket and query string
+  /// are stripped automatically and the resulting path is used as the cache key.
+  ///
+  // TODO: remove signed URL support once all callers pass bare resource paths.
   final String resourcePath;
 
   /// Override the cache TTL for this image. If null, uses the global default
@@ -94,17 +103,27 @@ class GcsCachedNetworkImage extends StatelessWidget {
   final ValueChanged<Object>? errorListener;
   final double scale;
 
+  /// Returns the stable cache key for this widget's [resourcePath].
+  ///
+  /// If [resourcePath] is a signed GCS URL the bucket and query string are
+  /// stripped; otherwise the value is returned unchanged.
+  String get _resolvedPath => extractGcsResourcePath(resourcePath) ?? resourcePath;
+
   /// Evicts [resourcePath] from both disk and memory caches.
+  ///
+  /// Accepts either a bare resource path or a signed GCS URL — both resolve
+  /// to the same cache key.
   static Future<bool> evictFromCache(
     String resourcePath, {
     double scale = 1.0,
     GcsUrlSigner? signer,
   }) {
+    final resolved = extractGcsResourcePath(resourcePath) ?? resourcePath;
     final manager =
         signer != null ? GcsCacheManager.forSigner(signer) : GcsCacheManager.instance;
     return CachedNetworkImage.evictFromCache(
-      resourcePath,
-      cacheKey: resourcePath,
+      resolved,
+      cacheKey: resolved,
       cacheManager: manager,
       scale: scale,
     );
@@ -112,9 +131,10 @@ class GcsCachedNetworkImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final resolved = _resolvedPath;
     return CachedNetworkImage(
-      imageUrl: resourcePath,
-      cacheKey: resourcePath,
+      imageUrl: resolved,
+      cacheKey: resolved,
       cacheManager: signer != null
           ? GcsCacheManager.forSigner(signer!)
           : GcsCacheManager.instance,

@@ -29,5 +29,6 @@ export 'cached_network_image.dart';
 export 'src/gcs_cache_manager.dart';
 export 'src/gcs_cached_image_widget.dart';
 export 'src/gcs_cached_network_image_provider.dart';
+export 'src/gcs_resource_path.dart';
 export 'src/gcs_signer_registry.dart';
 export 'src/gcs_url_signer.dart';
