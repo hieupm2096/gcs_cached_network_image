@@ -1,6 +1,5 @@
-import 'package:cached_network_image/src/gcs_signer_registry.dart';
-import 'package:cached_network_image/src/gcs_url_signer.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gcs_cached_network_image/gcs_cached_network_image.dart';
 
 class _FakeSigner extends GcsUrlSigner {
   @override

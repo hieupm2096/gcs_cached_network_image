@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:cached_network_image/src/gcs_cache_manager.dart';
-import 'package:cached_network_image/src/gcs_signer_registry.dart';
-import 'package:cached_network_image/src/gcs_url_signer.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gcs_cached_network_image/gcs_cached_network_image.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 // ---------------------------------------------------------------------------
