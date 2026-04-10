@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -129,9 +130,11 @@ class GcsCacheManager extends CacheManager with ImageCacheManager {
         final stale =
             await getFileFromCache(cacheKey, ignoreMemCache: true);
         if (stale != null) {
+          if (kDebugMode) log('[GcsCache] STALE FALLBACK: serving cached copy of $cacheKey (error: $error)', name: 'gcs_cached_network_image');
           controller.add(stale);
           _scheduleRetry(url, key: key, headers: headers);
         } else {
+          if (kDebugMode) log('[GcsCache] ERROR: no cache for $cacheKey, propagating error', name: 'gcs_cached_network_image');
           controller.addError(error, stackTrace);
         }
         unawaited(controller.close());

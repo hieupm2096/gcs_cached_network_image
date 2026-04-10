@@ -1,5 +1,7 @@
+import 'dart:developer';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
 import 'gcs_url_signer.dart';
@@ -43,6 +45,8 @@ class GcsFileService implements FileService {
         cleanHeaders[key] = value;
       }
     });
+
+    if (kDebugMode) log('[GcsCache] DOWNLOAD: $url', name: 'gcs_cached_network_image');
 
     final signedUrl = await signer.signResourcePath(url);
 
